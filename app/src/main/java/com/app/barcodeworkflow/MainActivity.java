@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private List<String> spinnerList = new ArrayList<>();
     private SQLiteDatabase database;
     private String desc_item_selec; // Variável para armazenar o valor de selectedRow[1]
+    private String folderLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +85,9 @@ public class MainActivity extends AppCompatActivity {
         imageView = (ImageView) findViewById(R.id.image_imageview);
 
         openDatabase();
+
         setupFilters(); // Configura os filtros e aplica a lógica inicial
+
         editText1.setImeOptions(EditorInfo.IME_ACTION_DONE);  // Mostra a tecla DONE
 
         editText1.setOnEditorActionListener(new TextView.OnEditorActionListener() { // Configura o comportamento ao pressionar a tecla ENTER ou DONE
@@ -111,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                     case 6: type = "AZTEC"; break;
                     default: type = "Barcode"; break;
                 }
-                Log.d("type", type);
+                //Log.d("type", type);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -187,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
         bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
         return bitmap;
     }
+
+
     public void saveBitmap (Bitmap bitmap, String message, String bitName) {
         String[] PERMISSIONS = {
                 "android.permission.READ_EXTERNAL_STORAGE",
@@ -213,17 +218,17 @@ public class MainActivity extends AppCompatActivity {
     //  time = String.valueOf(year) + "-" + String.valueOf(month) + "-" + String.valueOf(day) + " " + String.valueOf(hour) + ":" + String.valueOf(minute) + ":" + String.valueOf(second) + "." + String.valueOf(millisecond);
         File file;
         String fileLocation;
-        String folderLocation;
+        //String folderLocation;
 
         if (Build.BRAND.equals("Xiaomi") ) {
-            fileLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/nic_gerabcSQL/" + fileName + bitName ;
-            folderLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/nic_gerabcSQL/"; //unifiquei em apenas um diretório
+            fileLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/BarcodeWorkflow/" + fileName + bitName ;
+            folderLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/BarcodeWorkflow/"; //unifiquei em apenas um diretório
         } else {
-            fileLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/nic_gerabcSQL/" + fileName + bitName ;
-            folderLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/nic_gerabcSQL/";
+            fileLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/BarcodeWorkflow/" + fileName + bitName ;
+            folderLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/BarcodeWorkflow/";
         }
 
-        Log.d("file_location", fileLocation);
+        //Log.d("file_location", fileLocation);
 
         file = new File(fileLocation);
 
@@ -276,16 +281,21 @@ public class MainActivity extends AppCompatActivity {
             LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
             View view = layoutInflater.inflate(R.layout.success_dialog, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("Summary");
+            builder.setTitle("To save");
             builder.setCancelable(false);
             builder.setView(view);
             success_text = (TextView) view.findViewById(R.id.success_text);
             success_text.setText(message + "\n" + desc_item_selec + "\n\n" + time); //add desc do item. mensagem é o barcode
             success_imageview = (ImageView) view.findViewById(R.id.success_imageview);
             success_imageview.setImageBitmap(myBitmap);
+
             builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    // Mostrar Toast com a localização do arquivo
+                    Toast.makeText(MainActivity.this,
+                            "Arquivo salvo em: " + folderLocation,
+                            Toast.LENGTH_LONG).show();
                     // do nothing
                 }
             });
