@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.4'  // Versão compatível com SDK 28
+        classpath 'com.android.tools.build:gradle:4.2.2'  // Versão compatível com SDK 28
       //classpath 'com.android.tools.build:gradle:3.2.1'
     }
 }
