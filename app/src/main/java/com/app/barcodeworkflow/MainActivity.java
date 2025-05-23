@@ -48,30 +48,24 @@ import java.util.List;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
-    private String message = "";
-    private String type = "";
+    private String message = "", type = "", time, folderLocation, desc_item_selec;
     private Button button_generate;
     private EditText editText1;
     private Spinner type_spinner;
-    private ImageView imageView;
-    private int size = 660; //private final int size = 660;
-    private int size_width = 660; //private final int size_width = 660;
-    private int size_height = 264;
+    private int size = 660, size_width = 660, size_height = 264; //private final int size = 660;
     private TextView success_text;
-    private ImageView success_imageview;
-    private String time;
+    private ImageView success_imageview, imageView;
     private Bitmap myBitmap;
     private Spinner codeSpinner;
     private List<String[]> rowList = new ArrayList<>();
     private List<String> spinnerList = new ArrayList<>();
     private SQLiteDatabase database;
-    private String desc_item_selec; // Variável para armazenar o valor de selectedRow[1]
-    private String folderLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
