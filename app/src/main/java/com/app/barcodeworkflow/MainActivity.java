@@ -17,8 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.content.DialogInterface;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,9 +46,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private String message = "", type = "", time, folderLocation, desc_item_selec;
+    private static final String BACKUP_FOLDER = "BC_WORKFLOW";
     private Button button_generate;
     private EditText editText1;
     private Spinner type_spinner;
@@ -190,15 +192,17 @@ public class MainActivity extends AppCompatActivity {
         String[] PERMISSIONS = {
                 "android.permission.READ_EXTERNAL_STORAGE",
                 "android.permission.WRITE_EXTERNAL_STORAGE" };
+
         int permission = ContextCompat.checkSelfPermission(this,
                 "android.permission.WRITE_EXTERNAL_STORAGE");
+
         if (permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, PERMISSIONS,1);
         }
 
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
+        int month = calendar.get(Calendar.MONTH) + 1; // MONTH começa em 0
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int hour = calendar.get(Calendar.HOUR_OF_DAY); // Formato 24h - orig//int hour = calendar.get(Calendar.HOUR);
         int minute = calendar.get(Calendar.MINUTE);
@@ -206,10 +210,8 @@ public class MainActivity extends AppCompatActivity {
     //  int millisecond = calendar.get(Calendar.MILLISECOND);
 
         String fileName = message + "_at_" + year +  month + day + "_" + hour + minute + second;
-    //  String fileName = message + "_at_" + String.valueOf(year) + "_" + String.valueOf(month) + "_" + String.valueOf(day) + "_" + String.valueOf(hour) + "_" + String.valueOf(minute) + "_" + String.valueOf(second) + "_"  + String.valueOf(millisecond);
-        time = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
-    //  time = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second + "." + millisecond;
-    //  time = String.valueOf(year) + "-" + String.valueOf(month) + "-" + String.valueOf(day) + " " + String.valueOf(hour) + ":" + String.valueOf(minute) + ":" + String.valueOf(second) + "." + String.valueOf(millisecond);
+        time = String.format(Locale.getDefault(),"%d-%02d-%02d %02d:%02d:%02d", year, month, day, hour, minute, second); // dois digitos
+        //time = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
         File file;
         String fileLocation;
         //String folderLocation;
@@ -221,8 +223,6 @@ public class MainActivity extends AppCompatActivity {
             fileLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/BarcodeWorkflow/" + fileName + bitName ;
             folderLocation = Environment.getExternalStorageDirectory().getPath()+"/DCIM/BarcodeWorkflow/";
         }
-
-        //Log.d("file_location", fileLocation);
 
         file = new File(fileLocation);
 
@@ -268,43 +268,85 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        if (item.getItemId() == R.id.action_save) {
+            // Verifica se o bitmap e a mensagem são válidos
+            if (myBitmap == null || myBitmap.isRecycled()) {
+                Toast.makeText(this, "Bitmap inválido ou não gerado", Toast.LENGTH_SHORT).show();
+                return true;
+            }
 
-        if (id == R.id.action_save) {
-            saveBitmap(myBitmap, message, ".jpg");
-            LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
-            View view = layoutInflater.inflate(R.layout.success_dialog, null);
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("To save");
-            builder.setCancelable(false);
-            builder.setView(view);
-            success_text = (TextView) view.findViewById(R.id.success_text);
-            success_text.setText(message + "\n" + desc_item_selec + "\n\n" + time); //add desc do item. mensagem é o barcode
-            success_imageview = (ImageView) view.findViewById(R.id.success_imageview);
-            success_imageview.setImageBitmap(myBitmap);
+            if (TextUtils.isEmpty(message)) {
+                Toast.makeText(this, "Nenhum código gerado para salvar", Toast.LENGTH_SHORT).show();
+                return true;
+            }
 
-            builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // Mostrar Toast com a localização do arquivo
-                    Toast.makeText(MainActivity.this,
-                            "Arquivo salvo em: " + folderLocation,
-                            Toast.LENGTH_LONG).show();
-                    // do nothing
-                }
-            });
-            builder.create();
-            builder.show();
+            // Prepara o texto com todas as informações
+            String infoText = String.format(Locale.getDefault(),
+                    "%s\n%s\n\n%s",
+                    message,
+                    desc_item_selec != null ? desc_item_selec : "",
+                    time != null ? time : "");
+
+            // Infla o layout de sucesso
+            View dialogView = LayoutInflater.from(this).inflate(R.layout.success_dialog, null);
+            TextView successText = (TextView) dialogView.findViewById(R.id.success_text);
+            ImageView successImageView = (ImageView) dialogView.findViewById(R.id.success_imageview);
+
+            successText.setText(infoText);
+            successImageView.setImageBitmap(myBitmap);
+
+            // Cria e mostra o diálogo de confirmação
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirmar salvamento")
+                    //.setMessage("Deseja salvar este código?")
+                    .setView(dialogView)
+                    .setPositiveButton("Salvar", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            saveBitmap(myBitmap, message, ".jpg");
+                            Toast.makeText(MainActivity.this,
+                                    "Arquivo salvo em: " + folderLocation,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
+
     private void openDatabase() {
         try {
-            File databasePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "barcodes.db");
-            database = SQLiteDatabase.openOrCreateDatabase(databasePath, null);
+            // Caminho para o diretório de Downloads + sua pasta personalizada
+            File backupDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), BACKUP_FOLDER);
+
+            // Verifica se o diretório existe, se não, cria
+            if (!backupDir.exists()) {
+                if (!backupDir.mkdirs()) {
+                    Toast.makeText(this, "Não foi possível criar o diretório", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+
+            // Caminho completo para o arquivo de banco de dados
+            File databaseFile = new File(backupDir, "barcodes.db");
+
+            // Verifica se o arquivo existe
+            if (!databaseFile.exists()) {
+                Toast.makeText(this, "Arquivo barcodes.db não encontrado em " + backupDir.getPath(), Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            // Abre o banco de dados
+            database = SQLiteDatabase.openDatabase(databaseFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
+
         } catch (SQLiteException e) {
-            Toast.makeText(this, "Erro ao abrir arquivo barcodes.db no Downloads", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Erro ao abrir o banco de dados: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -385,11 +427,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private void setupFilters() {
-        EditText filterColumn0 = findViewById(R.id.filter_column_0);
-        EditText filterColumn2 = findViewById(R.id.filter_column_2);
-        EditText filterColumn3 = findViewById(R.id.filter_column_3);
+        EditText filterColumn0 = findViewById(R.id.filter_column_0); //LOJA //1BARCODE
+        EditText filterColumn2 = findViewById(R.id.filter_column_2); //DESC
+        EditText filterColumn3 = findViewById(R.id.filter_column_3); //CP
 
-        filterColumn0.setText("6000000174x");// Define valor padrão para filterColumn0
+        filterColumn0.setText("60W0045455");// Define valor padrão para filterColumn0
 
         filterColumn0.addTextChangedListener(new TextWatcher() {
             @Override
@@ -404,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-      // filterColumn2.setText("Amendoim");
+        filterColumn2.setText("SKOL");
         filterColumn2.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -430,7 +472,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
-
 
         applyFilters();  // Aplica os filtros inicialmente para preencher o spinner
     }

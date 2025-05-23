@@ -4,11 +4,11 @@
 
     <string-array name="type_string">
         <item>QR Code</item>
-        <item>Barcode</item>
+        <item>Barcode 128</item>
         <item>Data Matrix</item>
         <item>PDF 417</item>
-        <item>Barcode-39</item>
-        <item>Barcode-93</item>
+        <item>Barcode 39</item>
+        <item>Barcode 93</item>
         <item>AZTEC</item>
     </string-array>
 
