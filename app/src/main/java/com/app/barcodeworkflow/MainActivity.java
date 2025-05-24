@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.content.DialogInterface;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         type = "Barcode";
 
         button_generate = (Button) findViewById(R.id.generate_button);
-        editText1 = (EditText) findViewById(R.id.edittext2);
+        editText1 = (EditText) findViewById(R.id.editTextNumberBarcode);
         type_spinner = (Spinner) findViewById(R.id.type_spinner);
         imageView = (ImageView) findViewById(R.id.image_imageview);
 
@@ -317,9 +318,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
     private void openDatabase() {
         try {
             // Caminho para o diretório de Downloads + sua pasta personalizada
@@ -332,51 +330,50 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
             }
-
             // Caminho completo para o arquivo de banco de dados
             File databaseFile = new File(backupDir, "barcodes.db");
+           // COLUNAS NO BANCO DE DADOS loja TEXT, barcode NUMERIC, descr_imdb TEXT,cp TEXT
 
             // Verifica se o arquivo existe
             if (!databaseFile.exists()) {
                 Toast.makeText(this, "Arquivo barcodes.db não encontrado em " + backupDir.getPath(), Toast.LENGTH_LONG).show();
                 return;
             }
-
             // Abre o banco de dados
             database = SQLiteDatabase.openDatabase(databaseFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READWRITE);
 
         } catch (SQLiteException e) {
             Toast.makeText(this, "Erro ao abrir o banco de dados: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
     private void applyFilters() {
         EditText filterColumn0 = findViewById(R.id.filter_column_0); // coluna0 loja
-        EditText filterColumn2 = findViewById(R.id.filter_column_2); // coluna0 descr
+        EditText filterColumn2 = findViewById(R.id.filter_column_2); // coluna2 descr
         EditText filterColumn3 = findViewById(R.id.filter_column_3); // coluna3 cp
 
-        final EditText editText1 = findViewById(R.id.edittext2);
+        final EditText editText1 = findViewById(R.id.editTextNumberBarcode);
         final Button buttonGenerate = findViewById(R.id.generate_button);
 
         Spinner codeSpinner = findViewById(R.id.code_spinner);
 
-        String filter0 = filterColumn0.getText().toString().trim().toLowerCase();
-        String filter2 = filterColumn2.getText().toString().trim().toLowerCase();
-        String filter3 = filterColumn3.getText().toString().trim().toLowerCase();
+        String filter0 = filterColumn0.getText().toString().trim().toLowerCase(); // coluna0 loja
+        String filter2 = filterColumn2.getText().toString().trim().toLowerCase(); // coluna2 descr
+        String filter3 = filterColumn3.getText().toString().trim().toLowerCase(); // coluna3 cp
 
-        String[] parts = filter2.split("\\s+"); // Processa o filtro descr_imdb considerando palavras separadas
-        StringBuilder filter2Processed = new StringBuilder("%");
-        for (String part : parts) {
+        String[] descrCol2 = filter2.split("\\s+"); // Processa o filtro descr_imdb considerando palavras separadas
+        StringBuilder descrCol2_comLike = new StringBuilder("%");
+        for (String part : descrCol2) {
             if (!part.isEmpty()) {
-                filter2Processed.append(part).append("%");
+                descrCol2_comLike.append(part).append("%");
             }
         }
 
-        String[] partss = filter3.split("\\s+"); // Processa o filtro cp considerando palavras separadas
-        StringBuilder filter3Processed = new StringBuilder("%");
-        for (String part : partss) {
+        String[] cpCol3 = filter3.split("\\s+"); // Processa o filtro cp considerando palavras separadas
+        StringBuilder cpCol3_comLike = new StringBuilder("%");
+        for (String part : cpCol3) {
             if (!part.isEmpty()) {
-                filter3Processed.append(part).append("%");
+                cpCol3_comLike.append(part).append("%");
             }
         }
 
@@ -387,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
         if (database != null) {
             String query = "SELECT loja, barcode, descr_imdb FROM barcodes_tab WHERE LOWER(loja) LIKE ? AND LOWER(descr_imdb) LIKE ? AND LOWER(cp) LIKE ?";
 
-            try (Cursor cursor = database.rawQuery(query, new String[]{"%" + filter0 + "%", filter2Processed.toString(), filter3Processed.toString()})) {
+            try (Cursor cursor = database.rawQuery(query, new String[]{"%" + filter0 + "%", descrCol2_comLike.toString(), cpCol3_comLike.toString()})) {
                 while (cursor.moveToNext()) {
                     String loja = cursor.getString(0);
                     String barcode = cursor.getString(1);
@@ -399,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } catch (SQLiteException e) {
                 Toast.makeText(this, "Erro ao consultar o Banco de Dados.", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 
@@ -426,51 +423,64 @@ public class MainActivity extends AppCompatActivity {
 
         });
     }
+
+
+    // Adicione como variável de classe
+    private Handler handler = new Handler();
+    private Runnable filterRunnable = new Runnable() {
+        @Override
+        public void run() {
+            applyFilters();
+        }
+    };
+    @Override
+    protected void onDestroy() {
+        handler.removeCallbacks(filterRunnable);
+        super.onDestroy();
+    }
+
     private void setupFilters() {
         EditText filterColumn0 = findViewById(R.id.filter_column_0); //LOJA //1BARCODE
         EditText filterColumn2 = findViewById(R.id.filter_column_2); //DESC
         EditText filterColumn3 = findViewById(R.id.filter_column_3); //CP
 
         filterColumn0.setText("60W0045455");// Define valor padrão para filterColumn0
-
         filterColumn0.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                applyFilters();
+                handler.removeCallbacks(filterRunnable);
+                if (s.length() >= 4) {  // Só filtra com pelo menos 3 caracteres
+                    handler.postDelayed(filterRunnable, 300); //Filtragem somente após 300ms de inatividade
+                }
             }
 
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
 
-        filterColumn2.setText("SKOL");
+        filterColumn2.setText("CLARA 500");// Define valor padrão para filterColumn0
         filterColumn2.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                applyFilters();
+                handler.removeCallbacks(filterRunnable);
+                if (s.length() >= 4) {  // Só filtra com pelo menos 3 caracteres
+                    handler.postDelayed(filterRunnable, 300);
+                }
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
-
+        filterColumn3.setText("CAFE");// Define valor padrão para filterColumn0
         filterColumn3.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                applyFilters();
+                handler.removeCallbacks(filterRunnable);
+                if (s.length() >= 4) {  // Só filtra com pelo menos 3 caracteres
+                    handler.postDelayed(filterRunnable, 300);
+                }
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
 
         applyFilters();  // Aplica os filtros inicialmente para preencher o spinner
