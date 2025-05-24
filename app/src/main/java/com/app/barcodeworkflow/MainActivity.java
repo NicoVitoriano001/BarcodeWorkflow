@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        codeSpinner = findViewById(R.id.code_spinner); //spinner barcode
+        codeSpinner = findViewById(R.id.spinnerItem); //spinner barcode
         message = "";
         type = "Barcode";
 
@@ -355,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
         final EditText editText1 = findViewById(R.id.editTextNumberBarcode);
         final Button buttonGenerate = findViewById(R.id.generate_button);
 
-        Spinner codeSpinner = findViewById(R.id.code_spinner);
+        Spinner codeSpinner = findViewById(R.id.spinnerItem);
 
         String filter0 = filterColumn0.getText().toString().trim().toLowerCase(); // coluna0 loja
         String filter2 = filterColumn2.getText().toString().trim().toLowerCase(); // coluna2 descr
@@ -400,8 +400,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, spinnerList);
+        MultilineSpinnerAdapter adapter = new MultilineSpinnerAdapter(this,
+                android.R.layout.simple_spinner_item, spinnerList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
         codeSpinner.setAdapter(adapter);
 
         codeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // Listener para o Spinner

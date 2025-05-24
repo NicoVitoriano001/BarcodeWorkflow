@@ -107,7 +107,7 @@
 
         <!-- Code Spinner -->
         <Spinner
-            android:id="@+id/code_spinner"
+            android:id="@+id/spinnerItem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/type_spinner"
@@ -122,7 +122,7 @@
             android:id="@+id/generate_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/code_spinner"
+            android:layout_below="@id/spinnerItem"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="16dp"
