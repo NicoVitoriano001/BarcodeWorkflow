@@ -1,5 +1,6 @@
 package com.app.barcodeworkflow;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -26,15 +27,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
-import com.app.barcodeworkflow.R;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -56,11 +56,9 @@ public class MainActivity extends AppCompatActivity {
     private EditText editText1;
     private Spinner type_spinner;
     private int size = 660, size_width = 660, size_height = 264; //private final int size = 660;
-    private TextView success_text;
-    private ImageView success_imageview, imageView;
+    private ImageView imageView;
     private Bitmap myBitmap;
     private Spinner codeSpinner;
-    private List<String[]> rowList = new ArrayList<>();
     private List<String> spinnerList = new ArrayList<>();
     private SQLiteDatabase database;
 
@@ -122,6 +120,12 @@ public class MainActivity extends AppCompatActivity {
         button_generate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Esconde o teclado
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE); //InputMethodManager serviço do sistema que controla o teclado virtual
+                if (imm.isAcceptingText()) {  // Verifica se o teclado está aberto
+                    imm.hideSoftInputFromWindow(editText1.getWindowToken(), 0);
+                }
+
                 message = editText1.getText().toString();
                 if (message.equals("") || type.equals("")) {
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
@@ -150,7 +154,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
+
+
+    } //fim onCreate
 
     public Bitmap CreateImage(String message, String type) throws WriterException {
         BitMatrix bitMatrix = null;
@@ -187,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
         bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
         return bitmap;
     }
-
 
     public void saveBitmap (Bitmap bitmap, String message, String bitName) {
         String[] PERMISSIONS = {
@@ -400,10 +405,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        MultilineSpinnerAdapter adapter = new MultilineSpinnerAdapter(this,
-                android.R.layout.simple_spinner_item, spinnerList);
+        MultilineSpinnerAdapter adapter = new MultilineSpinnerAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                spinnerList
+        );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         codeSpinner.setAdapter(adapter);
 
         codeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // Listener para o Spinner
@@ -417,7 +424,6 @@ public class MainActivity extends AppCompatActivity {
                     buttonGenerate.performClick();
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 // Nada acontece caso nenhum item seja selecionado
@@ -425,7 +431,6 @@ public class MainActivity extends AppCompatActivity {
 
         });
     }
-
 
     // Adicione como variável de classe
     private Handler handler = new Handler();
@@ -451,11 +456,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 handler.removeCallbacks(filterRunnable);
-                if (s.length() >= 4) {  // Só filtra com pelo menos 3 caracteres
+                if (s.length() >= 3) {  // Só filtra com pelo menos 3 caracteres
                     handler.postDelayed(filterRunnable, 300); //Filtragem somente após 300ms de inatividade
                 }
             }
-
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
         });
@@ -465,9 +469,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 handler.removeCallbacks(filterRunnable);
-                if (s.length() >= 4) {  // Só filtra com pelo menos 3 caracteres
-                    handler.postDelayed(filterRunnable, 300);
-                }
+                handler.postDelayed(filterRunnable, 300); // Aguarda 300ms sem digitar
             }
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
@@ -477,9 +479,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 handler.removeCallbacks(filterRunnable);
-                if (s.length() >= 4) {  // Só filtra com pelo menos 3 caracteres
-                    handler.postDelayed(filterRunnable, 300);
-                }
+                handler.postDelayed(filterRunnable, 300);
+
             }
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}

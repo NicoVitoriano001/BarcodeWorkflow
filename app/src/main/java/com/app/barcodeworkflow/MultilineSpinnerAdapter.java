@@ -22,26 +22,33 @@ public class MultilineSpinnerAdapter extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        return createCustomView(position, convertView, parent);
+        // View do item selecionado (simple_spinner_item)
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context)
+                    .inflate(android.R.layout.simple_spinner_item, parent, false);
+        }
+
+        TextView textView = convertView.findViewById(android.R.id.text1);
+        textView.setText(items.get(position));
+        textView.setSingleLine(false);  // Permite múltiplas linhas
+        textView.setMaxLines(2);        // Limite para o item selecionado
+
+        return convertView;
     }
 
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        return createCustomView(position, convertView, parent);
-    }
-
-    private View createCustomView(int position, View convertView, ViewGroup parent) {
-        View view = convertView;
-        if (view == null) {
-            LayoutInflater inflater = LayoutInflater.from(context);
-            view = inflater.inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
+        // View dos itens do dropdown (simple_spinner_dropdown_item)
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context)
+                    .inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
         }
 
-        TextView textView = view.findViewById(android.R.id.text1);
+        TextView textView = convertView.findViewById(android.R.id.text1);
         textView.setText(items.get(position));
-        textView.setSingleLine(false); // Permite múltiplas linhas
-        textView.setMaxLines(3); // Limita a 3 linhas para não ficar muito grande
+        textView.setSingleLine(false);  // Permite múltiplas linhas
+        textView.setMaxLines(3);        // Limite para os itens do dropdown
 
-        return view;
+        return convertView;
     }
 }
