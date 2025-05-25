@@ -1,6 +1,7 @@
 package com.app.barcodeworkflow;
 
-import android.content.Context;
+// COLUNAS NO BANCO DE DADOS loja TEXT, barcode NUMERIC, descr_imdb TEXT,cp TEXT
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -21,13 +22,10 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -70,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        codeSpinner = findViewById(R.id.spinnerItem); //spinner barcode
+        codeSpinner = findViewById(R.id.spinnerItem); //spinner Item
         message = "";
         type = "Barcode";
 
@@ -83,18 +81,18 @@ public class MainActivity extends AppCompatActivity {
 
         setupFilters(); // Configura os filtros e aplica a lógica inicial
 
-        editText1.setImeOptions(EditorInfo.IME_ACTION_DONE);  // Mostra a tecla DONE
+        //editText1.setImeOptions(EditorInfo.IME_ACTION_DONE);  // Mostra a tecla DONE editText1 Numero barcode
 
-        editText1.setOnEditorActionListener(new TextView.OnEditorActionListener() { // Configura o comportamento ao pressionar a tecla ENTER ou DONE
+        /**editText1.setOnEditorActionListener(new TextView.OnEditorActionListener() { // Configura o comportamento ao pressionar a tecla ENTER ou DONE
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {  // Verifica se o usuário pressionou DONE
-                    button_generate.performClick();  // Chama a ação do botão
+                    //button_generate.performClick();  // Chama a ação do botão
                     return true;
                 }
                 return false;
             }
-        });
+        }); **/
 
         type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -120,13 +118,16 @@ public class MainActivity extends AppCompatActivity {
         button_generate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Esconde o teclado
+
+                /**  Esconde o teclado
                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE); //InputMethodManager serviço do sistema que controla o teclado virtual
                 if (imm.isAcceptingText()) {  // Verifica se o teclado está aberto
                     imm.hideSoftInputFromWindow(editText1.getWindowToken(), 0);
                 }
+                **/
 
                 message = editText1.getText().toString();
+
                 if (message.equals("") || type.equals("")) {
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
                     dialog.setTitle("Error");
@@ -153,8 +154,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-        });
 
+        });
 
     } //fim onCreate
 
@@ -410,6 +411,7 @@ public class MainActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item,
                 spinnerList
         );
+
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         codeSpinner.setAdapter(adapter);
 
@@ -430,9 +432,15 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+        /** Esconde o teclado
+         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE); //InputMethodManager serviço do sistema que controla o teclado virtual
+         if (imm.isAcceptingText()) {  // Verifica se o teclado está aberto
+         imm.hideSoftInputFromWindow(editText1.getWindowToken(), 0);
+         }
+         **/
     }
 
-    // Adicione como variável de classe
     private Handler handler = new Handler();
     private Runnable filterRunnable = new Runnable() {
         @Override
@@ -440,6 +448,7 @@ public class MainActivity extends AppCompatActivity {
             applyFilters();
         }
     };
+
     @Override
     protected void onDestroy() {
         handler.removeCallbacks(filterRunnable);
@@ -485,8 +494,8 @@ public class MainActivity extends AppCompatActivity {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
         });
-
         applyFilters();  // Aplica os filtros inicialmente para preencher o spinner
+
     }
 
 }

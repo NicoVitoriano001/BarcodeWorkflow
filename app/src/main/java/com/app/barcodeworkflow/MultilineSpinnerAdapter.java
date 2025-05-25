@@ -20,10 +20,10 @@ public class MultilineSpinnerAdapter extends ArrayAdapter<String> {
         this.items = items;
     }
 
+    // ITENS NO SPINNER PRINCIPAL (simple_spinner_item)
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // View do item selecionado (simple_spinner_item)
-        if (convertView == null) {
+                if (convertView == null) {
             convertView = LayoutInflater.from(context)
                     .inflate(android.R.layout.simple_spinner_item, parent, false);
         }
@@ -31,7 +31,7 @@ public class MultilineSpinnerAdapter extends ArrayAdapter<String> {
         TextView textView = convertView.findViewById(android.R.id.text1);
         textView.setText(items.get(position));
         textView.setSingleLine(false);  // Permite múltiplas linhas
-        textView.setMaxLines(2);        // Limite para o item selecionado
+        textView.setMaxLines(3);        // Limite para o item selecionado
 
         return convertView;
     }
@@ -47,7 +47,7 @@ public class MultilineSpinnerAdapter extends ArrayAdapter<String> {
         TextView textView = convertView.findViewById(android.R.id.text1);
         textView.setText(items.get(position));
         textView.setSingleLine(false);  // Permite múltiplas linhas
-        textView.setMaxLines(3);        // Limite para os itens do dropdown
+        textView.setMaxLines(2);        // Limite para os itens do dropdown
 
         return convertView;
     }

@@ -23,12 +23,12 @@
             android:layout_marginBottom="10dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/filter_column_0"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Filtrar por Loja"
-                android:imeOptions="actionDone"
-                android:inputType="text" />
+            android:id="@+id/filter_column_0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Filtrar por Loja"
+            android:imeOptions="actionDone"
+            android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Campo de busca para columns[2] DESCRITIVO -->
@@ -43,12 +43,12 @@
             android:layout_marginBottom="10dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/filter_column_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Filtrar por Item"
-                android:imeOptions="actionDone"
-                android:inputType="text" />
+            android:id="@+id/filter_column_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Filtrar por Item"
+            android:imeOptions="actionDone"
+            android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Campo de busca para columns[3] CP -->
@@ -63,12 +63,12 @@
             android:layout_marginBottom="10dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/filter_column_3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Filtrar por CP"
-                android:imeOptions="actionDone"
-                android:inputType="text" />
+            android:id="@+id/filter_column_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Filtrar por CP"
+            android:imeOptions="actionDone"
+            android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Campo de columns[1] BARCODE -->
@@ -83,12 +83,12 @@
             android:layout_marginBottom="10dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextNumberBarcode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Number Barcode"
-                android:imeOptions="actionDone"
-                android:inputType="text" />
+            android:id="@+id/editTextNumberBarcode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Number Barcode"
+            android:imeOptions="actionDone"
+            android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Type Spinner -->
@@ -124,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/spinnerItem"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:text="Generate"
@@ -138,7 +138,7 @@
             android:layout_below="@id/generate_button"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp" />
     </RelativeLayout>
